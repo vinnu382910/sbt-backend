@@ -18,8 +18,11 @@ const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000" || "http
 app.use(
   cors({
     origin: [
-    "http://localhost:3000",
-    "http://192.168.29.167:3000"
+      "http://localhost:3000",
+    "http://192.168.29.167:3000",
+      "https://lms-micro-certification-frontend.vercel.app",
+      "https://lms-micro-certification-frontend-git-main-kalva-vinays-projects.vercel.app",
+      "https://lms-micro-certification-frontend-oppt193uo.vercel.app"
   ],
     credentials: true,
   })
