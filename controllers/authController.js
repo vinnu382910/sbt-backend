@@ -205,7 +205,7 @@ exports.login = async (req, res) => {
     user.lastLogin = new Date();
     await user.save();
     const token = signToken(user._id);
-    setAuthCookie(res, token);
+    setAuthCookie(res, token, req);
 
     return res.status(200).json({
       success: true,
@@ -218,7 +218,7 @@ exports.login = async (req, res) => {
 };
 
 exports.logout = async (req, res) => {
-  clearAuthCookie(res);
+  clearAuthCookie(res, req);
   return res.status(200).json({ success: true, message: "Logged out successfully." });
 };
 
@@ -303,7 +303,7 @@ exports.resetPassword = async (req, res) => {
     user.passwordResetOTPLastSentAt = null;
     await user.save();
 
-    clearAuthCookie(res);
+    clearAuthCookie(res, req);
     return res.status(200).json({ success: true, message: "Password reset successful. Please login again." });
   } catch (err) {
     console.error("Reset password error:", err.message);

@@ -69,7 +69,44 @@ const sendPasswordResetEmail = async ({ to, name, otp }) => {
   await sendEmail({ to, subject: "Your password reset OTP", html });
 };
 
+const toIstString = (dateInput) => {
+  const date = new Date(dateInput);
+  return new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date);
+};
+
+const sendPrivateExamAssignedEmail = async ({
+  to,
+  name,
+  examTitle,
+  startTime,
+  endTime,
+  examLink,
+}) => {
+  const html = `
+    <div style="font-family: Arial, sans-serif; line-height:1.6;">
+      <h2>Private Exam Assigned</h2>
+      <p>Hi ${name || "Learner"},</p>
+      <p>You have been assigned a private exam.</p>
+      <p><strong>Exam:</strong> ${examTitle}</p>
+      <p><strong>Start Time (IST):</strong> ${toIstString(startTime)}</p>
+      <p><strong>End Time (IST):</strong> ${toIstString(endTime)}</p>
+      <p><a href="${examLink}" target="_blank" rel="noopener noreferrer">Open Exam</a></p>
+      <p>Please complete the exam only within the above time window.</p>
+    </div>
+  `;
+  await sendEmail({ to, subject: `Private Exam Assigned: ${examTitle}`, html });
+};
+
 module.exports = {
   sendVerificationEmail,
   sendPasswordResetEmail,
+  sendPrivateExamAssignedEmail,
 };

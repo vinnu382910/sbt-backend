@@ -1,47 +1,53 @@
 // models/Question.js
 const mongoose = require("mongoose");
 
-const QuestionSchema = new mongoose.Schema({
-  quizId: { type: String, required: true, unique: true }, // e.g. "pythonEasy"
-  title: { type: String, required: true }, // e.g. "Python Basics Quiz"
-  description: { type: String }, // optional
-  level: { 
-    type: String, 
-    enum: ["Easy", "Medium", "Hard"], 
-    default: "Easy" 
-  }, // Difficulty level
-  timeLimit: { type: Number, required: true }, // In minutes
-  passMarks: { type: Number, required: true }, // Score required to pass
-  totalQuestions: { type: Number, required: true }, // Store explicitly
- // ✅ New field: Technologies / Skills
+const QuestionSchema = new mongoose.Schema(
+  {
+    quizId: { type: String, required: true, unique: true },
+    title: { type: String, required: true },
+    description: { type: String },
+    level: {
+      type: String,
+      enum: ["Easy", "Medium", "Hard"],
+      default: "Easy",
+    },
+    timeLimit: { type: Number, required: true },
+    passMarks: { type: Number, required: true },
+    totalQuestions: { type: Number, required: true },
     technologies: [
       {
         type: String,
         trim: true,
         required: true,
       },
-    ], // e.g. ["HTML", "CSS", "JavaScript"] or ["Python", "SQL"]
-
-  questions: [
-    {
-      questionText: { type: String, required: true },
-      options: [{ type: String, required: true }],
-      correctAnswer: { type: String, required: true },
-    }
-  ],
-  status: {
-    type: String,
-    enum: ["DRAFT", "PUBLISHED"],
-    default: "PUBLISHED",
+    ],
+    questions: [
+      {
+        questionText: { type: String, required: true },
+        imageUrl: { type: String, default: "" },
+        imagePublicId: { type: String, default: "" },
+        imageAlt: { type: String, default: "" },
+        codeSnippet: { type: String, default: "" },
+        codeLanguage: { type: String, default: "" },
+        options: [{ type: String, required: true }],
+        correctAnswer: { type: String, required: true },
+      },
+    ],
+    status: {
+      type: String,
+      enum: ["DRAFT", "PUBLISHED", "ARCHIVED"],
+      default: "DRAFT",
+    },
+    isPublished: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: false },
+    version: { type: Number, default: 1, min: 1 },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   },
-  isPublished: { type: Boolean, default: true },
-  isActive: { type: Boolean, default: true },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
-}, { timestamps: true });
+  { timestamps: true }
+);
 
-// Before saving, automatically set totalQuestions
 QuestionSchema.pre("save", function (next) {
-  this.totalQuestions = this.questions.length;
+  this.totalQuestions = Array.isArray(this.questions) ? this.questions.length : 0;
   next();
 });
 

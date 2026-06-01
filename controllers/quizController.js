@@ -41,7 +41,6 @@ exports.getAllQuizzes = async (req, res) => {
     const skip = (pageNumber - 1) * pageLimit;
 
     const totalQuizzes = await QuestionSet.countDocuments(filter);
-
     // Fetch quizzes (paginated)
     const quizzes = await QuestionSet.find(filter, {
       quizId: 1,
@@ -141,6 +140,10 @@ exports.getQuizQuestions = async (req, res) => {
 
     const questions = quiz.questions.map((q) => ({
       questionText: q.questionText,
+      imageUrl: q.imageUrl || "",
+      imageAlt: q.imageAlt || "",
+      codeSnippet: q.codeSnippet || "",
+      codeLanguage: q.codeLanguage || "",
       options: q.options,
     }));
 
@@ -195,6 +198,10 @@ exports.submitQuiz = async (req, res) => {
 
       detailedResults.push({
         questionText: question.questionText,
+        imageUrl: question.imageUrl || "",
+        imageAlt: question.imageAlt || "",
+        codeSnippet: question.codeSnippet || "",
+        codeLanguage: question.codeLanguage || "",
         options: question.options,
         correctAnswer: question.correctAnswer,
         userAnswer,
