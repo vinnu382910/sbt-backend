@@ -17,6 +17,8 @@ const app = express();
 app.set("trust proxy", 1);
 
 const isProduction = process.env.NODE_ENV === "production";
+const allowAnyOrigin =
+  String(process.env.CORS_ALLOW_ANY_ORIGIN || "true").toLowerCase() !== "false";
 const normalizeOrigin = (value) => String(value || "").trim().replace(/\/$/, "");
 
 const parseAllowedOrigins = () => {
@@ -59,9 +61,25 @@ const isAllowedDevLanOrigin = (origin) => {
   }
 };
 
+const isValidHttpOrigin = (origin) => {
+  if (!origin) return false;
+
+  try {
+    const { protocol } = new URL(origin);
+    return protocol === "http:" || protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.has(normalizeOrigin(origin)) || isAllowedDevLanOrigin(origin)) {
+    if (
+      !origin ||
+      (allowAnyOrigin && isValidHttpOrigin(origin)) ||
+      allowedOrigins.has(normalizeOrigin(origin)) ||
+      isAllowedDevLanOrigin(origin)
+    ) {
       return callback(null, true);
     }
 
@@ -75,6 +93,7 @@ const corsOptions = {
     "x-exam-session",
     "ngrok-skip-browser-warning",
   ],
+  maxAge: 86400,
 };
 
 const validateRequiredEnv = () => {
