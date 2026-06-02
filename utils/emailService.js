@@ -56,32 +56,6 @@ const sendEmail = async ({ to, subject, html }) => {
   }
 };
 
-const sendVerificationEmail = async ({ to, name, otp }) => {
-  const html = `
-    <div style="font-family: Arial, sans-serif; line-height:1.5;">
-      <h2>Email Verification OTP</h2>
-      <p>Hi ${name || "Learner"},</p>
-      <p>Your OTP is:</p>
-      <h1 style="letter-spacing:3px;">${otp}</h1>
-      <p>This OTP expires in 5 minutes.</p>
-    </div>
-  `;
-  await sendEmail({ to, subject: "Your verification OTP", html });
-};
-
-const sendPasswordResetEmail = async ({ to, name, otp }) => {
-  const html = `
-    <div style="font-family: Arial, sans-serif; line-height:1.5;">
-      <h2>Password Reset OTP</h2>
-      <p>Hi ${name || "Learner"},</p>
-      <p>Your password reset OTP is:</p>
-      <h1 style="letter-spacing:3px;">${otp}</h1>
-      <p>This OTP expires in 5 minutes.</p>
-    </div>
-  `;
-  await sendEmail({ to, subject: "Your password reset OTP", html });
-};
-
 const toIstString = (dateInput) => {
   const date = new Date(dateInput);
   return new Intl.DateTimeFormat("en-IN", {
@@ -119,7 +93,5 @@ const sendPrivateExamAssignedEmail = async ({
 };
 
 module.exports = {
-  sendVerificationEmail,
-  sendPasswordResetEmail,
   sendPrivateExamAssignedEmail,
 };

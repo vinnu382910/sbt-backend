@@ -4,15 +4,11 @@ Secure Node.js + Express + MongoDB backend for quizzes, results, certificates, a
 
 ## Security Model
 - HTTP-only cookie JWT auth (`token` cookie).
-- Email verification uses 6-digit OTP (5-minute expiry).
-- Password reset uses 6-digit OTP (5-minute expiry).
-- OTP values are hashed with SHA-256 in DB.
-- OTP resend cooldown: 60 seconds.
-- OTP resend/request rate limit: 5 requests per hour.
+- Registration is immediate with name, email, and password.
+- Login uses email/password and sets an HTTP-only cookie.
 
-## Email Provider (SMTP, No Domain Purchase)
-This project now uses SMTP instead of Resend domain flow.
-You can use Gmail + App Password.
+## Email Provider
+SMTP is only used for private exam assignment emails. User registration and login do not require email OTP.
 
 ## Environment Variables
 Create `.env` in `backend/`:
@@ -60,12 +56,8 @@ For production (HTTPS):
 
 ## Auth API Endpoints
 ### Public
-- `POST /auth/register` -> sends verification OTP
+- `POST /auth/register`
 - `POST /auth/login`
-- `POST /auth/verify-email-otp`
-- `POST /auth/resend-email-otp`
-- `POST /auth/forgot-password` -> sends reset OTP
-- `POST /auth/reset-password` -> `{ email, otp, password }`
 
 ### Protected
 - `GET /auth/me`

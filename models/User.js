@@ -12,13 +12,7 @@ const userSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
   isSuspended: { type: Boolean, default: false },
   lastLogin: { type: Date, default: null },
-  isVerified: { type: Boolean, default: false },
-  emailOTP: { type: String, default: null },
-  emailOTPExpire: { type: Date, default: null },
-  emailOTPLastSentAt: { type: Date, default: null },
-  passwordResetOTP: { type: String, default: null },
-  passwordResetOTPExpire: { type: Date, default: null },
-  passwordResetOTPLastSentAt: { type: Date, default: null },
+  isVerified: { type: Boolean, default: true },
 });
 
 module.exports = mongoose.model("User", userSchema);

@@ -306,7 +306,6 @@ exports.assignPrivateExam = async (req, res) => {
       _id: { $in: userIds },
       isActive: true,
       isSuspended: false,
-      isVerified: true,
     })
       .select("_id name email")
       .lean();

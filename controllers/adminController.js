@@ -139,10 +139,9 @@ exports.deleteQuestionImage = async (req, res) => {
 
 exports.getDashboardStats = async (req, res) => {
   try {
-    const [totalUsers, verifiedUsers, activeUsers, suspendedUsers, totalQuizzes, totalAttempts] =
+    const [totalUsers, activeUsers, suspendedUsers, totalQuizzes, totalAttempts] =
       await Promise.all([
         User.countDocuments(),
-        User.countDocuments({ isVerified: true }),
         User.countDocuments({ isActive: true }),
         User.countDocuments({ isSuspended: true }),
         QuestionSet.countDocuments(),
@@ -180,7 +179,6 @@ exports.getDashboardStats = async (req, res) => {
       success: true,
       stats: {
         totalUsers,
-        verifiedUsers,
         activeUsers,
         suspendedUsers,
         totalQuizzes,
@@ -198,7 +196,7 @@ exports.getDashboardStats = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
-    const { search, role, isActive, isSuspended, isVerified } = req.query;
+    const { search, role, isActive, isSuspended } = req.query;
     const { page, limit, skip } = parsePaging(req.query);
 
     const filter = {};
@@ -211,12 +209,11 @@ exports.getUsers = async (req, res) => {
     if (role && ["USER", "ADMIN", "SUPER_ADMIN"].includes(role)) filter.role = role;
     if (isActive === "true" || isActive === "false") filter.isActive = isActive === "true";
     if (isSuspended === "true" || isSuspended === "false") filter.isSuspended = isSuspended === "true";
-    if (isVerified === "true" || isVerified === "false") filter.isVerified = isVerified === "true";
 
     const [total, users] = await Promise.all([
       User.countDocuments(filter),
       User.find(filter)
-        .select("name email role isActive isSuspended isVerified lastLogin createdAt")
+        .select("name email role isActive isSuspended lastLogin createdAt")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -260,7 +257,6 @@ exports.updateUserStatus = async (req, res) => {
         role: user.role,
         isActive: user.isActive,
         isSuspended: user.isSuspended,
-        isVerified: user.isVerified,
       },
     });
   } catch (error) {
