@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer");
 
 const normalize = (value) => String(value || "").trim();
+const SMTP_TIMEOUT_MS = Number(process.env.SMTP_TIMEOUT_MS || 10000);
 
 const getSmtpConfig = () => {
   const user = normalize(process.env.SMTP_USER);
@@ -24,6 +25,9 @@ const getTransporter = () => {
     host: cfg.host,
     port: cfg.port,
     secure: cfg.secure,
+    connectionTimeout: SMTP_TIMEOUT_MS,
+    greetingTimeout: SMTP_TIMEOUT_MS,
+    socketTimeout: SMTP_TIMEOUT_MS,
     auth: {
       user: cfg.user,
       pass: cfg.pass,
@@ -35,12 +39,21 @@ const sendEmail = async ({ to, subject, html }) => {
   const cfg = getSmtpConfig();
   const transporter = getTransporter();
 
-  await transporter.sendMail({
-    from: `"${cfg.appName}" <${cfg.user}>`,
-    to,
-    subject,
-    html,
-  });
+  try {
+    await transporter.sendMail({
+      from: `"${cfg.appName}" <${cfg.user}>`,
+      to,
+      subject,
+      html,
+    });
+  } catch (error) {
+    const wrappedError = new Error(
+      "Unable to send email right now. Please check SMTP settings and try again."
+    );
+    wrappedError.name = "EmailDeliveryError";
+    wrappedError.cause = error;
+    throw wrappedError;
+  }
 };
 
 const sendVerificationEmail = async ({ to, name, otp }) => {

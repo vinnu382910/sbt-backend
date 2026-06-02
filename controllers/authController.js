@@ -35,6 +35,22 @@ const getCooldownSeconds = (lastSentAt) => {
   return Math.max(0, Math.ceil((OTP_RESEND_COOLDOWN_MS - elapsed) / 1000));
 };
 
+const isEmailDeliveryError = (error) => error?.name === "EmailDeliveryError";
+
+const handleAuthError = (res, context, error) => {
+  console.error(`${context} error:`, error.message);
+
+  if (isEmailDeliveryError(error)) {
+    return res.status(503).json({
+      success: false,
+      message:
+        "Unable to send OTP email right now. Please check SMTP settings and try again.",
+    });
+  }
+
+  return res.status(500).json({ success: false, message: "Server error." });
+};
+
 const sendEmailOtp = async (user) => {
   const otp = generateOtp();
   user.emailOTP = hashToken(otp);
@@ -99,8 +115,7 @@ exports.register = async (req, res) => {
       email: user.email,
     });
   } catch (err) {
-    console.error("Register error:", err.message);
-    return res.status(500).json({ success: false, message: "Server error." });
+    return handleAuthError(res, "Register", err);
   }
 };
 
@@ -164,8 +179,7 @@ exports.resendEmailOtp = async (req, res) => {
     await sendEmailOtp(user);
     return res.status(200).json({ success: true, message: "OTP sent to your email." });
   } catch (err) {
-    console.error("Resend email OTP error:", err.message);
-    return res.status(500).json({ success: false, message: "Server error." });
+    return handleAuthError(res, "Resend email OTP", err);
   }
 };
 
@@ -265,8 +279,7 @@ exports.forgotPassword = async (req, res) => {
       message: "If that email exists, a reset OTP has been sent.",
     });
   } catch (err) {
-    console.error("Forgot password error:", err.message);
-    return res.status(500).json({ success: false, message: "Server error." });
+    return handleAuthError(res, "Forgot password", err);
   }
 };
 
